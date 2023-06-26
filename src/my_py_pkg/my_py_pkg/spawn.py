@@ -40,7 +40,6 @@ class MyTurtleSpawner(Node):
         future = self.spawn_client.call_async(self.spawn_request)
         future.result()
 
-   
 def main(args=None):
     rclpy.init(args=args)
     spawner_node = MyTurtleSpawner()
