@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import rclpy
 from rclpy.node import Node
 from turtlesim.srv import TeleportAbsolute
@@ -76,6 +78,7 @@ class Hunter(Node):
         ):
             self.find_closest_distance_and_teleport(self.pose_list)
             self.log_once = True
+    def node_killer(self):
 
 
 def main(args=None):

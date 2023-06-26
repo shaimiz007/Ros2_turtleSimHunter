@@ -25,6 +25,7 @@ def generate_launch_description():
             package="my_py_pkg",
             executable="spawn",
             name=f"spawn_{i}",
+            parameters=[{'name':f"spawner_{i}"}]
         )
         spawn_nodes.append(spawn_node)
 

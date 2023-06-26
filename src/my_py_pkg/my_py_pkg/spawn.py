@@ -3,22 +3,10 @@ from rclpy.node import Node
 from turtlesim.srv import Spawn
 from random import uniform, choice
 from math import pi
-
 import os
 
 current_directory = os.getcwd()
 print(current_directory)
-
-# Read the names from the text file
-def random_name_selctor():
-    with open('/home/vboxuser/ros2_ws/install/my_robot_bringup/share/my_robot_bringup/launch/names1', 'r') as file:
-    # with open("install/my_robot_bringup/share/my_robot_bringup/launch/names1", "r"    ) as file:
-        # with open('names1.txt', 'r') as file:
-        names = file.read().strip().split(",")
-    # Randomly select a name
-    random_name = choice(names).strip()
-    # Print the randomly selected name
-    return random_name
 
 class MyTurtleSpawner(Node):
     def __init__(self):
@@ -29,14 +17,13 @@ class MyTurtleSpawner(Node):
             self.get_logger().info('Spawn service not available, waiting...')
 
         self.spawn_request = Spawn.Request()
-
          
         # Get parameter values
         self.spawn_request.x = uniform(0.5, 9.5)
         self.spawn_request.y = uniform(0.5, 9.5)
         self.spawn_request.theta = uniform(0, 2 *pi)
-        self.spawn_request.name = random_name_selctor()
-
+        self.declare_parameter('name','temp')
+        self.spawn_request.name = self.get_parameter('name').value
         future = self.spawn_client.call_async(self.spawn_request)
         future.result()
 
