@@ -22,7 +22,7 @@ def generate_launch_description():
     
     spawn_nodes = []
 
-    for i in range(1):
+    for i in range(2):
         spawn_node = Node(
             package="my_py_pkg",
             executable="spawn",
