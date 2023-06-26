@@ -1,10 +1,9 @@
 import rclpy
 from rclpy.node import Node
 from turtlesim.srv import TeleportAbsolute
-from time import sleep
 from turtlesim.msg import Pose
 from functools import partial
-
+from time import sleep
 
 
 
@@ -29,31 +28,23 @@ class Hunter(Node):
         except Exception as e:
             self.get_logger().error(e)
 
-        
         # Count the number of spawn services
-        self.count_spawn()
-
+        self.log_once=False
         # Find pose topics and create subscribers for each topic
+        
         self.find_pose_topics()
-
-    def count_spawn(self):
-        # Count the number of spawn services by checking service names
-        service_names = self.get_service_names_and_types()
-        self.spawn_count = 0
-        for service_name in service_names:
-            if str(service_name[0])[:7] == "/spawn_":
-                self.spawn_count += 1
-            self.spawn_number=int(self.spawn_count/6)
-        self.get_logger().info("Spawn number = " + str(self.spawn_number))
-
+  
     def find_pose_topics(self):
         # Find topics that contain "pose" in their name
         topic_names = self.get_topic_names_and_types()
         pose_topics = [topic for topic, _ in topic_names if "pose" in topic]
+        self.num_of_poses = len(pose_topics)
+        self.get_logger().info("Number of pose topics: %d" % self.num_of_poses)
 
         # Create a dictionary to store pose subscribers and a set to store unique poses
         self.pose_subscriber = {}
         self.pose_list = set()
+        
         for pose_topic in pose_topics:
             # Create a subscriber for each pose topic
             self.pose_subscriber[pose_topic] =  self.create_subscription(
@@ -65,17 +56,12 @@ class Hunter(Node):
         # Extract the pose values from the message
         x, y, theta = msg.x, msg.y, msg.theta
         pose = (x, y, theta, topic_name)
-
-        # Add the pose to the set of poses
+                # Add the pose to the set of poses
         self.pose_list.add(pose)
-        if len(self.pose_list) == self.spawn_number:
-            pass
-       #     self.get_logger().info(str(self.pose_list))
-          #  self.find_closest_pose()
-
-
+        if  len(self.pose_list) ==self.num_of_poses and self.log_once==False and self.num_of_poses>=2:
+            self.get_logger().info(str(self.pose_list))
+            self.log_once=True
     
-
 def main(args=None):
     rclpy.init(args=args)
     hunter_node = Hunter()

@@ -1,10 +1,8 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
 import launch.actions
-from time import sleep
 
-
-
+print("\033c", end="")
 def generate_launch_description():
     ld = LaunchDescription()
     
@@ -22,7 +20,7 @@ def generate_launch_description():
     
     spawn_nodes = []
 
-    for i in range(2):
+    for i in range(3):
         spawn_node = Node(
             package="my_py_pkg",
             executable="spawn",
