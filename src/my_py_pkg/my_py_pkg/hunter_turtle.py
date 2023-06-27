@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-
 import rclpy
 from rclpy.node import Node
-from turtlesim.srv import TeleportAbsolute
+from turtlesim.srv import TeleportAbsolute,Kill
 from turtlesim.msg import Pose
 from functools import partial
 from math import sqrt
-
 
 class Hunter(Node):
     def __init__(self):
@@ -46,13 +44,15 @@ class Hunter(Node):
 
         for pose in pos_set:
             x, y, theta, topic_name = pose
+            turtle_name=topic_name[1:-5]
             distance = sqrt((x_turtle - x) ** 2 + (y_turtle - y) ** 2)  # distance
             if distance < min_distance:
                 closest_point = (x, y, theta)
-                self.call_teleport(x,y,theta,topic_name)
+                self.call_teleport(x,y,theta,turtle_name)
+             #   self.send_kill_request
         return closest_point
     
-    def call_teleport(self, x, y, theta,topic):
+    def call_teleport(self, x, y, theta,turtle_name):
         request = TeleportAbsolute.Request()
         request.x = x
         request.y = y
@@ -60,15 +60,27 @@ class Hunter(Node):
         try:
             future = self.client.call_async(request)
             future.result()
-            self.get_logger().info("Teleported to  "+topic[1:-5]+" (%f, %f, %f)" % (x, y, theta))
+            self.get_logger().info("Teleported to  "+turtle_name+" (%f, %f, %f)" % (x, y, theta))
         except Exception as e:
             self.get_logger().error(e)
 
 
     def pose_callback(self, msg, topic_name):
+        # Extract the turtle name from the topic name
+        turtle_name = topic_name[1:-5]
+        # Add the pose to the set of poses
+        pose = (msg.x, msg.y, msg.theta, turtle_name)
+        self.pose_list.add(pose)
+        if (
+            len(self.pose_list) == self.num_of_poses
+            and not self.log_once
+            and self.num_of_poses >= 3
+        ):
+            self.find_closest_distance_and_teleport(self.pose_list)
+            self.log_once = True
         # Extract the pose values from the message
         x, y, theta = msg.x, msg.y, msg.theta
-        pose = (x, y, theta, topic_name)
+        pose = (x, y, theta, turtle_name)
         # Add the pose to the set of poses
         self.pose_list.add(pose)
         if (
@@ -78,8 +90,23 @@ class Hunter(Node):
         ):
             self.find_closest_distance_and_teleport(self.pose_list)
             self.log_once = True
-    def node_killer(self):
+    
+    #kill turtle methond
+    def send_kill_request(self, turtle_name):
+        kill_client = self.node.create_client(Kill, 'kill')
 
+        while not kill_client.wait_for_service(timeout_sec=1.0):
+            self.node.get_logger().info('Kill service not available. Waiting...')
+
+        request = Kill.Request()
+        request.name = turtle_name
+        future = kill_client.call_async(request)
+
+        if future.done():
+            if future.result() is not None:
+                self.node.get_logger().info('Turtle killed successfully: %s' % turtle_name)
+            else:
+                self.node.get_logger().info('Failed to kill turtle: %s' % turtle_name)
 
 def main(args=None):
     rclpy.init(args=args)

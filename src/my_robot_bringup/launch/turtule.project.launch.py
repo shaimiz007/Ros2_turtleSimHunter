@@ -20,12 +20,12 @@ def generate_launch_description():
     
     spawn_nodes = []
 
-    for i in range(3):
+    for i in range(1):
         spawn_node = Node(
             package="my_py_pkg",
             executable="spawn",
             name=f"spawn_{i}",
-            parameters=[{'name':f"spawner_{i}"}]
+            parameters=[{'name':f"spawn_{i}"}]
         )
         spawn_nodes.append(spawn_node)
 
