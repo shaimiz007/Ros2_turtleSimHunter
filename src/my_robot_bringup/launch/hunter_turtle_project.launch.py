@@ -15,13 +15,13 @@ def generate_launch_description():
     TurtleSimStartNode = Node(package="my_py_pkg",
                           executable="turtlesim_starter",)
     TurtleHunter=Node(package="my_py_pkg",
-                      executable="hunter_turtle",
+                      executable="hunter_turtle_oop",
                       name="turtle_hunter",
                       )
     
     spawn_nodes = []
 
-    for i in range(5):
+    for i in range(25):
         spawn_node = Node(
             package="my_py_pkg",
             executable="spawn",
@@ -31,8 +31,9 @@ def generate_launch_description():
         spawn_nodes.append(spawn_node)
 
     for i, node in enumerate(spawn_nodes):
+        
         delay = launch.actions.TimerAction(
-            period=i * 1.1, actions=[node]  # Delay in seconds for each node
+            period=i * 1.8, actions=[node]  # Delay in seconds for each node
         )
         ld.add_action(delay)
 

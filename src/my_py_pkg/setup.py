@@ -35,6 +35,7 @@ setup(
             "led_server2=my_py_pkg.led_server2:main",
             "spawn=my_py_pkg.spawn:main",
             "hunter_turtle=my_py_pkg.hunter_turtle:main",
+            "hunter_turtle_oop=my_py_pkg.hunter_turtle_oop:main",
             "node_killer=my_py_pkg.node_killer:main"
         ]
     },
