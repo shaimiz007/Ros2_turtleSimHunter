@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from turtlesim.srv import Spawn
-from random import uniform, choice
+from random import uniform
 from math import pi
 import os
 
